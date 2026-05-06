@@ -1,0 +1,103 @@
+{
+    "commonCircles": [
+  "Andhra Pradesh",
+  "Assam",
+  "Bihar & Jharkhand",
+  "Chennai",
+  "Delhi",
+  "Gujarat",
+  "Haryana",
+  "Himachal Pradesh",
+  "Jammu & Kashmir",
+  "Karnataka",
+  "Kerala",
+  "Kolkata",
+  "Madhya Pradesh & Chhattisgarh",
+  "Maharashtra & Goa",
+  "Mumbai",
+  "North East",
+  "Odisha",
+  "Punjab",
+  "Rajasthan",
+  "Tamil Nadu",
+  "Uttar Pradesh (East)",
+  "Uttar Pradesh (West)",
+  "West Bengal"
+],
+  "operators": [
+    {
+      "name": "Jio",
+      "code": "JIO",
+      "plans": [
+ 
+  { "id": 1, "name": "Jio ₹239 Plan", "amount": 239, "validity": "22 days", "data": "1.5GB/day", "talktime": "Unlimited", "is5G": false },
+  { "id": 2, "name": "Jio ₹299 Plan", "amount": 299, "validity": "28 days", "data": "1.5GB/day", "talktime": "Unlimited", "is5G": false },
+  { "id": 3, "name": "Jio ₹349 Plan", "amount": 349, "validity": "28 days", "data": "2GB/day", "talktime": "Unlimited", "is5G": true },
+  { "id": 4, "name": "Jio ₹399 Plan", "amount": 399, "validity": "28 days", "data": "2.5GB/day", "talktime": "Unlimited", "is5G": true },
+  { "id": 5, "name": "Jio ₹449 Plan", "amount": 449, "validity": "28 days", "data": "3GB/day", "talktime": "Unlimited", "is5G": true },
+  { "id": 6, "name": "Jio ₹579 Plan", "amount": 579, "validity": "56 days", "data": "1.5GB/day", "talktime": "Unlimited", "is5G": false },
+  { "id": 7, "name": "Jio ₹629 Plan", "amount": 629, "validity": "56 days", "data": "2GB/day", "talktime": "Unlimited", "is5G": true },
+  { "id": 8, "name": "Jio ₹719 Plan", "amount": 719, "validity": "70 days", "data": "2GB/day", "talktime": "Unlimited", "is5G": true },
+  { "id": 9, "name": "Jio ₹749 Plan", "amount": 749, "validity": "72 days", "data": "2GB/day + 20GB", "talktime": "Unlimited", "is5G": true },
+  { "id": 10, "name": "Jio ₹799 Plan", "amount": 799, "validity": "84 days", "data": "1.5GB/day", "talktime": "Unlimited", "is5G": false },
+  { "id": 11, "name": "Jio ₹859 Plan", "amount": 859, "validity": "84 days", "data": "2GB/day", "talktime": "Unlimited", "is5G": true },
+  { "id": 12, "name": "Jio ₹899 Plan", "amount": 899, "validity": "90 days", "data": "2GB/day + 20GB", "talktime": "Unlimited", "is5G": true },
+  { "id": 13, "name": "Jio ₹999 Plan", "amount": 999, "validity": "98 days", "data": "2GB/day", "talktime": "Unlimited", "is5G": true },
+  { "id": 14, "name": "Jio ₹2025 Plan", "amount": 2025, "validity": "200 days", "data": "2.5GB/day", "talktime": "Unlimited", "is5G": true },
+   { "id":15, "name": "Jio ₹198 Plan", "amount": 198, "validity": "14 days", "data": "2GB/day", "talktime": "Unlimited", "is5G": true }
+      ]
+    },
+    {
+      "name": "Airtel",
+      "code": "AT",
+      "plans": [
+          { "id": 1, "name": "Airtel ₹199 Plan", "amount": 199, "validity": "28 days", "data": "2GB", "talktime": "Unlimited", "is5G": false },
+          { "id": 2, "name": "Airtel ₹219 Plan", "amount": 219, "validity": "28 days", "data": "3GB", "talktime": "Unlimited", "is5G": false },
+          { "id": 3, "name": "Airtel ₹299 Plan", "amount": 299, "validity": "28 days", "data": "1GB/day", "talktime": "Unlimited", "is5G": false },
+          { "id": 4, "name": "Airtel ₹319 Plan", "amount": 319, "validity": "1 month", "data": "1.5GB/day", "talktime": "Unlimited", "is5G": false },
+          { "id": 5, "name": "Airtel ₹349 Plan", "amount": 349, "validity": "28 days", "data": "2GB/day", "talktime": "Unlimited", "is5G": true },
+          { "id": 6, "name": "Airtel ₹355 Plan", "amount": 355, "validity": "30 days", "data": "25GB", "talktime": "Unlimited", "is5G": false },
+          { "id": 7, "name": "Airtel ₹489 Plan", "amount": 489, "validity": "77 days", "data": "6GB", "talktime": "Unlimited", "is5G": false },
+          { "id": 8, "name": "Airtel ₹548 Plan", "amount": 548, "validity": "84 days", "data": "7GB", "talktime": "Unlimited", "is5G": false },
+          { "id": 9, "name": "Airtel ₹579 Plan", "amount": 579, "validity": "56 days", "data": "1.5GB/day", "talktime": "Unlimited", "is5G": false },
+          { "id": 10, "name": "Airtel ₹589 Plan", "amount": 589, "validity": "30 days", "data": "50GB", "talktime": "Unlimited", "is5G": false },
+          { "id": 11, "name": "Airtel ₹619 Plan", "amount": 619, "validity": "60 days", "data": "1.5GB/day", "talktime": "Unlimited", "is5G": false },
+          { "id": 12, "name": "Airtel ₹799 Plan", "amount": 799, "validity": "77 days", "data": "1.5GB/day", "talktime": "Unlimited", "is5G": false },
+          { "id": 13, "name": "Airtel ₹859 Plan", "amount": 859, "validity": "84 days", "data": "1.5GB/day", "talktime": "Unlimited", "is5G": false },
+          { "id": 14, "name": "Airtel ₹929 Plan", "amount": 929, "validity": "90 days", "data": "1.5GB/day", "talktime": "Unlimited", "is5G": false },
+          { "id": 15, "name": "Airtel ₹2249 Plan", "amount": 2249, "validity": "365 days", "data": "30GB/day", "talktime": "Unlimited", "is5G": false }
+
+      ]
+    },
+    {
+      "name": "Vi",
+      "code": "VI",
+       "plans": [
+        { "id": 1, "name": "Vi ₹155 Plan", "amount": 155, "validity": "28 days", "data": "1GB", "talktime": "Unlimited", "is5G": false },
+        { "id": 2, "name": "Vi ₹179 Plan", "amount": 179, "validity": "28 days", "data": "1.2GB", "talktime": "Unlimited", "is5G": false },
+        { "id": 3, "name": "Vi ₹189 Plan", "amount": 189, "validity": "28 days", "data": "1.5GB", "talktime": "Unlimited", "is5G": false },
+        { "id": 4, "name": "Vi ₹199 Plan", "amount": 199, "validity": "28 days", "data": "3GB", "talktime": "Unlimited", "is5G": false },
+        { "id": 5, "name": "Vi ₹218 Plan", "amount": 218, "validity": "1 month", "data": "6GB", "talktime": "Unlimited", "is5G": false },
+        { "id": 6, "name": "Vi ₹239 Plan", "amount": 219, "validity": "20 days", "data": "1GB/day", "talktime": "Unlimited", "is5G": false },
+        { "id": 7, "name": "Vi ₹249 Plan", "amount": 249, "validity": "24 days", "data": "1.5GB/day", "talktime": "Unlimited", "is5G": false },
+        { "id": 8, "name": "Vi ₹289 Plan", "amount": 289, "validity": "56 days", "data": "2GB", "talktime": "Unlimited", "is5G": false },
+        { "id": 9, "name": "Vi ₹365 Plan", "amount": 365, "validity": "28 days", "data": "Unlimited", "talktime": "Unlimited", "is5G": false },
+        { "id": 10, "name": "Vi ₹379 Plan", "amount": 379, "validity": "1 month", "data": "Unlimited", "talktime": "Unlimited", "is5G": false },
+        { "id": 11, "name": "Vi ₹429 Plan", "amount": 429, "validity": "84 days", "data": "3GB", "talktime": "Unlimited", "is5G": false },
+        { "id": 12, "name": "Vi ₹509 Plan", "amount": 509, "validity": "84 days", "data": "9GB", "talktime": "Unlimited", "is5G": false },
+        { "id": 13, "name": "Vi ₹579 Plan", "amount": 579, "validity": "56 days", "data": "1.5GB/day", "talktime": "Unlimited", "is5G": false },
+        { "id": 14, "name": "Vi ₹666 Plan", "amount": 669, "validity": "64 days", "data": "1.5GB/day", "talktime": "Unlimited", "is5G": false },
+        { "id": 15, "name": "Vi ₹719 Plan", "amount": 719, "validity": "72 days", "data": "1GB/day", "talktime": "Unlimited", "is5G": false },
+        { "id": 16, "name": "Vi ₹795 Plan", "amount": 795, "validity": "56 days", "data": "Unlimited", "talktime": "Unlimited", "is5G": false },
+        { "id": 17, "name": "Vi ₹799 Plan", "amount": 799, "validity": "77 days", "data": "1.5GB/day", "talktime": "Unlimited", "is5G": false },
+        { "id": 18, "name": "Vi ₹859 Plan", "amount": 859, "validity": "84 days", "data": "1.5GB/day", "talktime": "Unlimited", "is5G": false },
+        { "id": 19, "name": "Vi ₹979 Plan", "amount": 979, "validity": "84 days", "data": "Unlimited", "talktime": "Unlimited", "is5G": false },
+        { "id": 20, "name": "Vi ₹1049 Plan", "amount": 1049, "validity": "180 days", "data": "18GB", "talktime": "Unlimited", "is5G": false },
+        { "id": 21, "name": "Vi ₹1749 Plan", "amount": 1749, "validity": "180 days", "data": "1.5GB/day", "talktime": "Unlimited", "is5G": false },
+        { "id": 22, "name": "Vi ₹1999 Plan", "amount": 1999, "validity": "365 days", "data": "36GB", "talktime": "Unlimited", "is5G": false },
+        { "id": 23, "name": "Vi ₹3599 Plan", "amount": 3599, "validity": "365 days", "data": "2GB/day", "talktime": "Unlimited", "is5G": false }
+      ]
+    }
+    
+  ]
+}

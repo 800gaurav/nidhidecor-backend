@@ -1,0 +1,11 @@
+{
+  "version": "1.0",
+  "apis": [
+    {
+      "identifier": "api-qrologic",
+      "source": "@api-qrologic/v1.0#1ce3tavl07rjddc",
+      "integrity": "sha512-pB0V4NGTeeuMrBaGRk0AMzFQOw9SIxHJYINTGGY1M1wKj5TDmq8cpXr1+8igtUz5A/sCDu4phhFTuQqRFVyDEA==",
+      "installerVersion": "6.1.3"
+    }
+  ]
+}
