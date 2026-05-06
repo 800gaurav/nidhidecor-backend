@@ -9,6 +9,7 @@ const binarySettlementSchema = new mongoose.Schema(
     paidAmount: { type: Number, default: 0 },
     payoutRatio: { type: Number, default: 0 },
     usersPaid: { type: Number, default: 0 },
+    usersSkippedForDirects: { type: Number, default: 0 },
   },
   { timestamps: true }
 );

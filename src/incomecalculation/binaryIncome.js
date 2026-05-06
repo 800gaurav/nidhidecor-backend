@@ -7,6 +7,7 @@ import { creditUserWallet } from "../utils/wallet.js";
 const DIRECT_INCOME_RATE = 0.05;
 const BINARY_POOL_RATE = 0.10;
 const MAX_UPLINER_DEPTH = 100;
+const REQUIRED_ACTIVE_DIRECTS_FOR_BINARY = 2;
 
 const roundMoney = (value) => Number(Number(value || 0).toFixed(2));
 
@@ -67,8 +68,8 @@ export const createBinaryBusinessForPurchase = async ({ buyer, purchaseBill }) =
     const parentInfo = await getBinaryParentInfo(currentUser);
     if (!parentInfo) break;
 
-    const upliner = await UserModel.findById(parentInfo.parentId).select("_id userId binaryParent binarySide");
-    if (!upliner) break;
+    const upliner = await UserModel.findById(parentInfo.parentId).select("_id userId role binaryParent binarySide");
+    if (!upliner || upliner.role === "admin") break;
 
     entries.push({
       purchaseBill: purchaseBill._id,
@@ -94,7 +95,7 @@ export const createBinaryBusinessForPurchase = async ({ buyer, purchaseBill }) =
 export const payDirectIncomeForPurchase = async ({ buyer, purchaseBill }) => {
   if (!buyer.referrer) return null;
 
-  const sponsor = await UserModel.findById(buyer.referrer).select("_id userId walletBalance totalIncome todayIncome");
+  const sponsor = await UserModel.findById(buyer.referrer).select("_id userId role walletBalance totalIncome todayIncome");
   if (!sponsor || sponsor.role === "admin") return null;
 
   const directAmount = roundMoney(purchaseBill.amount * DIRECT_INCOME_RATE);
@@ -133,6 +134,13 @@ const consumeBinaryPool = async (amount) => {
   }
 };
 
+const getActiveDirectCount = async (userId) =>
+  UserModel.countDocuments({
+    referrer: userId,
+    role: "user",
+    isActivated: true,
+  });
+
 export const settleDailyBinaryIncome = async (runDate = getRunDate()) => {
   const existing = await BinarySettlementModel.findOne({ runDate });
   if (existing) {
@@ -150,15 +158,23 @@ export const settleDailyBinaryIncome = async (runDate = getRunDate()) => {
   ]);
 
   const availablePool = roundMoney(poolAgg?.total || 0);
-  const users = await UserModel.find({ role: "user" }).select(
+  const users = await UserModel.find({ role: "user", isActivated: true }).select(
     "_id userId walletBalance totalIncome todayIncome binaryLeftCarryAmount binaryRightCarryAmount"
   );
 
   const claims = [];
+  const processedUplinerIds = [];
   let totalMatchedBusiness = 0;
   let totalClaimAmount = 0;
+  let usersSkippedForDirects = 0;
 
   for (const user of users) {
+    const activeDirectCount = await getActiveDirectCount(user._id);
+    if (activeDirectCount < REQUIRED_ACTIVE_DIRECTS_FOR_BINARY) {
+      usersSkippedForDirects += 1;
+      continue;
+    }
+
     const [leftAgg, rightAgg] = await Promise.all([
       BinaryBusinessModel.aggregate([
         { $match: { upliner: user._id, leg: "left", processed: false } },
@@ -173,10 +189,15 @@ export const settleDailyBinaryIncome = async (runDate = getRunDate()) => {
     const leftTotal = roundMoney((user.binaryLeftCarryAmount || 0) + (leftAgg[0]?.total || 0));
     const rightTotal = roundMoney((user.binaryRightCarryAmount || 0) + (rightAgg[0]?.total || 0));
     const matchedBusiness = roundMoney(Math.min(leftTotal, rightTotal));
+    const hasPendingBusiness = (leftAgg[0]?.total || 0) > 0 || (rightAgg[0]?.total || 0) > 0;
 
     user.binaryLeftCarryAmount = roundMoney(leftTotal - matchedBusiness);
     user.binaryRightCarryAmount = roundMoney(rightTotal - matchedBusiness);
     await user.save();
+
+    if (hasPendingBusiness) {
+      processedUplinerIds.push(user._id);
+    }
 
     if (matchedBusiness > 0) {
       const claimAmount = roundMoney(matchedBusiness * BINARY_POOL_RATE);
@@ -214,10 +235,12 @@ export const settleDailyBinaryIncome = async (runDate = getRunDate()) => {
     usersPaid += 1;
   }
 
-  await BinaryBusinessModel.updateMany(
-    { processed: false },
-    { $set: { processed: true, processedAt: new Date() } }
-  );
+  if (processedUplinerIds.length) {
+    await BinaryBusinessModel.updateMany(
+      { upliner: { $in: processedUplinerIds }, processed: false },
+      { $set: { processed: true, processedAt: new Date() } }
+    );
+  }
 
   await consumeBinaryPool(paidAmount);
 
@@ -229,5 +252,6 @@ export const settleDailyBinaryIncome = async (runDate = getRunDate()) => {
     paidAmount,
     payoutRatio: roundMoney(payoutRatio),
     usersPaid,
+    usersSkippedForDirects,
   });
 };

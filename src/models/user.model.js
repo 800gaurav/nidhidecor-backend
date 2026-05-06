@@ -60,7 +60,7 @@ userSchema.statics.generateReferralCode = async function () {
       .toString()
       .padStart(5, '0');
 
-    referralCode = `DT${randomPart}`; // ✅ prefix DNT + 4 digit
+    referralCode = `AH${randomPart}`; // ✅ prefix DNT + 4 digit
 
     // Check if code exists in database
     const existingUser = await this.findOne({ referralCode });
@@ -112,7 +112,7 @@ userSchema.pre('save', async function (next) {
 
   let isUnique = false;
   let generatedUserId;
-  const prefix = "DT";
+  const prefix = "AH";
 
   while (!isUnique) {
     const randomPart = Math.floor(Math.random() * 10000)

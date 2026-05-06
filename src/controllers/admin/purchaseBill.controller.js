@@ -9,6 +9,9 @@ import { errorResponse, successResponse } from "../../utils/api-response.js";
 
 const roundMoney = (value) => Number(Number(value || 0).toFixed(2));
 
+const getRunDate = () =>
+  new Date().toLocaleDateString("en-CA", { timeZone: "Asia/Kolkata" });
+
 export const createPurchaseBill = async (req, res) => {
   try {
     const {
@@ -62,6 +65,7 @@ export const createPurchaseBill = async (req, res) => {
 
     await UserModel.findByIdAndUpdate(user._id, {
       $inc: { totalPurchaseAmount: purchaseAmount },
+      isActivated: true,
     });
 
     const directIncomeAmount = await payDirectIncomeForPurchase({ buyer: user, purchaseBill: bill });
@@ -121,7 +125,11 @@ export const getPurchaseBills = async (req, res) => {
 
 export const runBinarySettlement = async (req, res) => {
   try {
-    const settlement = await settleDailyBinaryIncome();
+    const isManualTest = Boolean(req.body?.manualTest);
+    const runDate = isManualTest
+      ? `${getRunDate()}-manual-${Date.now()}`
+      : getRunDate();
+    const settlement = await settleDailyBinaryIncome(runDate);
     return successResponse(res, "Binary settlement completed successfully", settlement);
   } catch (error) {
     return errorResponse(res, error.message, 500);

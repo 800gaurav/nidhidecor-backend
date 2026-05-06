@@ -17,6 +17,7 @@ import { userWithdrawRoutes } from "./routes/user/withdaw.routes.js";
 import { adminAuthRouter } from "./routes/admin/auth.routes.js";
 import { adminUserRouter } from "./routes/admin/user.routes.js";
 import { purchaseBillRouter } from "./routes/admin/purchaseBill.routes.js";
+import { adminIncomeReportRouter } from "./routes/admin/incomeReport.routes.js";
 
 import path from 'path';
 
@@ -44,6 +45,7 @@ app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
 app.use("/api/v1/admin/auth", adminAuthRouter);
 app.use("/api/v1/admin/user", adminUserRouter);
 app.use("/api/v1/admin/purchase-bills", purchaseBillRouter);
+app.use("/api/v1/admin/income-report", adminIncomeReportRouter);
 
 app.all("/*splat", (req, res) => {
   errorResponse(res, "Route not found", 404);

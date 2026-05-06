@@ -4,7 +4,7 @@ import { UserModel } from "../models/user.model.js";
 
 dotenv.config();
 
-const email = "admin@dhantag.com";
+const email = "admin@gmail.com";
 const password = "Admin@1234";
 
 (async () => {
