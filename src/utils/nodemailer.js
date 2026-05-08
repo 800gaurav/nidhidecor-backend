@@ -7,32 +7,40 @@ import {
   SMTP_FROM_NAME
 } from "../config/index.js";
 
+const smtpPort = Number(SMTP_PORT || 587);
+const fromName = SMTP_FROM_NAME || "Axora Homes";
+
 const transporter = nodemailer.createTransport({
-  service: 'gmail',
   host: SMTP_HOST,
-  port: SMTP_PORT,
-  secure: false,
+  port: smtpPort,
+  secure: smtpPort === 465,
   auth: {
     user: SMTP_USER,
     pass: SMTP_PASSWORD,
   },
-  tls: {
-    rejectUnauthorized: false
-  }
 });
 
 
 const sendEmail = async (options) => {
   try {
     const message = {
-      from: `"${SMTP_FROM_NAME}" <${SMTP_USER}>`,
+      from: `"${fromName}" <${SMTP_USER}>`,
       to: options.email,
       subject: options.subject,
+      text: options.text,
       html: options.html,
     };
 
     const info = await transporter.sendMail(message);
-    console.log("Email sent successfully:", info.messageId);
+    if (!info.accepted?.includes(options.email)) {
+      throw new Error(`Email not accepted by SMTP server. Rejected: ${info.rejected?.join(", ") || "none"}`);
+    }
+
+    console.log("Email accepted by SMTP server:", {
+      messageId: info.messageId,
+      accepted: info.accepted,
+      rejected: info.rejected,
+    });
     return info;
   } catch (error) {
     console.error("Email sending error:", error);
@@ -48,7 +56,7 @@ const sendRegisterationOTP = async (toMail, otp) => {
     <head>
       <meta charset="UTF-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>Nidhi Decor OTP Verification</title>
+      <title>Axora Homes OTP Verification</title>
       <style>
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
         
@@ -274,7 +282,7 @@ const sendRegisterationOTP = async (toMail, otp) => {
     <body>
       <div class="email-container">
         <div class="header">
-          // <img src="https://backend.dhantag.com/uploads/dhantag.png" alt="Nidhi Decor" class="logo" />
+     
           <div class="header-title">OTP Verification</div>
           <div class="header-subtitle">Secure Access Code</div>
         </div>
@@ -282,7 +290,7 @@ const sendRegisterationOTP = async (toMail, otp) => {
         <div class="content">
           <div class="greeting">Hello,</div>
           <div class="message">
-            Thank you for choosing Nidhi Decor! To complete your registration and secure your account, 
+            Thank you for choosing Axora Homes! To complete your registration and secure your account, 
             please use the One-Time Password (OTP) below:
           </div>
           
@@ -310,13 +318,13 @@ const sendRegisterationOTP = async (toMail, otp) => {
           
           <div class="security-note">
             🔒 This is an automated message. Please do not reply to this email. 
-            Nidhi Decor will never ask you for your password or OTP via email.
+            Axora Homes will never ask you for your password or OTP via email.
           </div>
         </div>
         
         <div class="footer">
           <div class="copyright">
-            © ${new Date().getFullYear()} Nidhi Decor. All rights reserved.<br/>
+            © ${new Date().getFullYear()} Axora Homes. All rights reserved.<br/>
             This email was sent to ${toMail}
           </div>
         </div>
@@ -327,7 +335,8 @@ const sendRegisterationOTP = async (toMail, otp) => {
 
   await sendEmail({
     email: toMail,
-    subject: "Nidhi Decor - OTP Verification",
+    subject: "Axora Homes - Registration OTP Verification",
+    text: `Your Axora Homes registration OTP is ${otp}. It is valid for 10 minutes.`,
     html
   });
 
@@ -339,23 +348,24 @@ const sendRegistrationOTP = async (toMail, otp) => {
   
   const options = {
     email: toMail,
-    subject: "Your One-Time Password (OTP) for Forget Password",
+    subject: "Axora Homes - Password Reset OTP",
+    text: `Your password reset OTP is ${otp}. It is valid for 10 minutes.`,
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 8px;">
         <div style="text-align: center; margin-bottom: 20px;">
-        // <img src="https://backend.dhantag.com/uploads/dhantag.png" alt="Company Logo" style="height: 60px;" />
+       
         </div>
         <h2 style="color: #333; text-align: center;">Verify Your OTP For Password Reset</h2>
         <p style="font-size: 16px; color: #555;">Dear User,</p>
-        <p style="font-size: 16px; color: #555;">Thanks for giving your valuable time to DHANTAG! To complete your reset password, please use the following OTP:</p>
+        <p style="font-size: 16px; color: #555;">To complete your Axora Homes password reset, please use the following OTP:</p>
         <div style="background: #f5f5f5; padding: 15px; text-align: center; margin: 20px 0; border-radius: 6px;">
           <h1 style="margin: 0; color: #2c3e50; letter-spacing: 3px;">${otp}</h1>
         </div>
         <p style="font-size: 14px; color: #777; text-align: center;">This OTP is valid for <strong>10 minutes</strong>. Do not share it with anyone.</p>
         <p style="font-size: 16px; color: #555;">If you didn't request this OTP, please ignore this email or contact support.</p>
         <div style="margin-top: 30px; text-align: center; font-size: 14px; color: #999;">
-          <p>Best regards,<br>The Nidhi Decor Team</p>
-          <p>© ${new Date().getFullYear()} Nidhi Decor. All rights reserved.</p>
+          <p>Best regards,<br>The Axora Homes Team</p>
+          <p>© ${new Date().getFullYear()} Axora Homes. All rights reserved.</p>
         </div>
       </div>
     `,
@@ -375,14 +385,12 @@ const sendRegistrationOTP = async (toMail, otp) => {
 const sendRegistrationCredentialsEmail = async ({ toEmail, name, userId, password, referralCode }) => {
   const options = {
     email: toEmail,
-    subject: "Welcome to Nidhi Decor! Your Registration Details",
+    subject: "Welcome to Axora Homes! Your Registration Details",
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 8px;">
-        <div style="text-align: center; margin-bottom: 20px;">
-        // <img src="https://backend.dhantag.com/uploads/dhantag.png" alt="Company Logo" style="height: 60px;"  />
-        </div>
+      
         <h2 style="color: #333; text-align: center;">Welcome, ${name}!</h2>
-        <p style="font-size: 16px; color: #555;">Thanks for registering with Nidhi Decor.</p>
+        <p style="font-size: 16px; color: #555;">Thanks for registering with Axora Homes.</p>
         <p style="font-size: 16px; color: #555;">Here are your login details:</p>
         <div style="background: #f5f5f5; padding: 15px; border-radius: 6px; margin: 20px 0;">
           <p><strong>User ID:</strong> ${userId}</p>
@@ -392,8 +400,8 @@ const sendRegistrationCredentialsEmail = async ({ toEmail, name, userId, passwor
         <p style="font-size: 16px; color: #555;">Keep this information safe and do not share it with anyone.</p>
         <p style="font-size: 16px; color: #555;">We're glad to have you onboard!</p>
         <div style="margin-top: 30px; text-align: center; font-size: 14px; color: #999;">
-          <p>Best regards,<br>The Nidhi Decor Team</p>
-          <p>© ${new Date().getFullYear()} Nidhi Decor. All rights reserved.</p>
+          <p>Best regards,<br>The Axora Homes Team</p>
+          <p>© ${new Date().getFullYear()} Axora Homes. All rights reserved.</p>
         </div>
       </div>
     `

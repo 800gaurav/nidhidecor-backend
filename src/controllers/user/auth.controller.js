@@ -5,7 +5,7 @@ import { UserModel } from "../../models/user.model.js";
 import { errorResponse, successResponse } from "../../utils/api-response.js";
 import { getRandomOTP } from "../../utils/random-otp.js";
 import { JWT_EXPIRE, JWT_SECRET } from "../../config/index.js";
-import { sendRegistrationCredentialsEmail, sendRegistrationOTP } from "../../utils/nodemailer.js";
+import { sendRegisterationOTP, sendRegistrationCredentialsEmail, sendRegistrationOTP } from "../../utils/nodemailer.js";
 
 import bcrypt from 'bcryptjs';
 
@@ -73,14 +73,14 @@ const authController = {
         {
           $set: {
             email,
-            otp: String(newOTP),
+            otp: newOTP,
             otpExpiry: new Date(Date.now() + 10 * 60 * 1000),
           },
         },
         { upsert: true, new: true, setDefaultsOnInsert: true }
       );
 
-      await sendRegistrationOTP(email, newOTP);
+      await sendRegisterationOTP(email, newOTP);
       console.log("Email sent successfully");
 
       console.log("OTP saved to temp DB");

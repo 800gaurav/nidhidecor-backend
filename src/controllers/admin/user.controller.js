@@ -9,6 +9,9 @@ import { WithdrawModel } from "../../models/withdraw.model.js";
 import { IncomeModel } from "../../models/Income.modal.js";
 import { PurchaseBillModel } from "../../models/purchaseBill.model.js";
 
+const TREE_USER_FIELDS =
+  "_id userId name email phone sponsor createdAt isActivated totalPurchaseAmount walletBalance leftChild rightChild";
+
 const userController = {
   // Get all users with pagination
   getUsers: async (req, res) => {
@@ -263,6 +266,33 @@ const userController = {
       res.status(500).json({
         message: "Error fetching active users",
         error: err.message,
+      });
+    }
+  },
+
+  getLeftRightUserTree: async (req, res) => {
+    try {
+      const { userId } = req.params;
+
+      const user = await UserModel.findById(userId)
+        .select(TREE_USER_FIELDS)
+        .populate("leftChild", TREE_USER_FIELDS)
+        .populate("rightChild", TREE_USER_FIELDS);
+
+      if (!user) {
+        return res.status(404).json({ success: false, message: "User not found" });
+      }
+
+      return res.status(200).json({
+        success: true,
+        data: user,
+      });
+    } catch (error) {
+      console.error("Admin get tree error:", error);
+      return res.status(500).json({
+        success: false,
+        message: "Failed to fetch user tree",
+        error: error.message,
       });
     }
   },

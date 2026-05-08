@@ -12,6 +12,7 @@ router.get("/suspended-users", requireAuth(["admin"]), userController.getSuspend
 router.patch("/unblockuser/:userId", requireAuth(["admin"]), userController.unblockUser);
 router.get("/pendinguser", requireAuth(["admin"]), userController.getPendingUsers);
 router.get("/activeusers", requireAuth(["admin"]), userController.getallactiveusers);
+router.get("/get-left-right-user/:userId", requireAuth(["admin"]), userController.getLeftRightUserTree);
 router.get("/admin-referals", requireAuth(["admin"]), userController.getAdminDirectReferrals);
 router.post("/update-a-user/:userId", requireAuth(["admin"]), userController.adminUpdateUser);
 

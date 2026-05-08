@@ -1,2 +1,2 @@
-const getRandomOTP = (n) => Math.floor(Math.random() * (10 ** n));
+const getRandomOTP = (n) => Math.floor(Math.random() * (10 ** n)).toString().padStart(n, "0");
 export { getRandomOTP };
