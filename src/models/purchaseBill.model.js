@@ -16,6 +16,7 @@ const purchaseBillSchema = new mongoose.Schema(
     amount: { type: Number, required: true, min: 1 },
     remarks: { type: String, trim: true },
     directIncomeAmount: { type: Number, default: 0 },
+    purchaseCashbackAmount: { type: Number, default: 0 },
     binaryPoolAmount: { type: Number, default: 0 },
     binaryPoolUsed: { type: Number, default: 0 },
     addedBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" },

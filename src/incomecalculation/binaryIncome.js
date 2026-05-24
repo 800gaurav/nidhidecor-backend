@@ -4,8 +4,9 @@ import { PurchaseBillModel } from "../models/purchaseBill.model.js";
 import { UserModel } from "../models/user.model.js";
 import { creditUserWallet } from "../utils/wallet.js";
 
-const DIRECT_INCOME_RATE = 0.05;
-const BINARY_POOL_RATE = 0.10;
+const DIRECT_INCOME_RATE = 0.03;
+const BUYER_CASHBACK_RATE = 0.05;
+const BINARY_POOL_RATE = 0.07;
 const MAX_UPLINER_DEPTH = 100;
 const REQUIRED_ACTIVE_DIRECTS_FOR_BINARY = 2;
 
@@ -103,7 +104,7 @@ export const payDirectIncomeForPurchase = async ({ buyer, purchaseBill }) => {
     user: sponsor,
     amount: directAmount,
     paymenttype: "Direct Referral Income",
-    description: `5% direct income from purchase bill ${purchaseBill.billNumber || purchaseBill._id}`,
+    description: `3% direct income from purchase bill ${purchaseBill.billNumber || purchaseBill._id}`,
     meta: {
       purchaseBill: purchaseBill._id,
       sourceUserId: buyer.userId,
@@ -114,6 +115,27 @@ export const payDirectIncomeForPurchase = async ({ buyer, purchaseBill }) => {
   await purchaseBill.save();
 
   return directAmount;
+};
+
+export const payPurchaseCashbackForPurchase = async ({ buyer, purchaseBill }) => {
+  const cashbackAmount = roundMoney(purchaseBill.amount * BUYER_CASHBACK_RATE);
+  if (cashbackAmount <= 0) return 0;
+
+  await creditUserWallet({
+    user: buyer,
+    amount: cashbackAmount,
+    paymenttype: "Purchase Cashback",
+    description: `5% purchase cashback for bill ${purchaseBill.billNumber || purchaseBill._id}`,
+    meta: {
+      purchaseBill: purchaseBill._id,
+      sourceUserId: buyer.userId,
+    },
+  });
+
+  purchaseBill.purchaseCashbackAmount = cashbackAmount;
+  await purchaseBill.save();
+
+  return cashbackAmount;
 };
 
 const consumeBinaryPool = async (amount) => {
@@ -200,9 +222,10 @@ export const settleDailyBinaryIncome = async (runDate = getRunDate()) => {
     }
 
     if (matchedBusiness > 0) {
-      const claimAmount = roundMoney(matchedBusiness * BINARY_POOL_RATE);
-      claims.push({ user, leftTotal, rightTotal, matchedBusiness, claimAmount });
-      totalMatchedBusiness = roundMoney(totalMatchedBusiness + matchedBusiness);
+      const matchedPairBusiness = roundMoney(matchedBusiness * 2);
+      const claimAmount = roundMoney(matchedPairBusiness * BINARY_POOL_RATE);
+      claims.push({ user, leftTotal, rightTotal, matchedBusiness, matchedPairBusiness, claimAmount });
+      totalMatchedBusiness = roundMoney(totalMatchedBusiness + matchedPairBusiness);
       totalClaimAmount = roundMoney(totalClaimAmount + claimAmount);
     }
   }
@@ -216,7 +239,10 @@ export const settleDailyBinaryIncome = async (runDate = getRunDate()) => {
   let usersPaid = 0;
 
   for (const claim of claims) {
-    const payout = roundMoney(claim.claimAmount * payoutRatio);
+    const remainingPool = roundMoney(availablePool - paidAmount);
+    if (remainingPool <= 0) break;
+
+    const payout = Math.min(roundMoney(claim.claimAmount * payoutRatio), remainingPool);
     if (payout <= 0) continue;
 
     await creditUserWallet({
@@ -227,6 +253,8 @@ export const settleDailyBinaryIncome = async (runDate = getRunDate()) => {
       meta: {
         slsp: claim.leftTotal,
         srsp: claim.rightTotal,
+        matchedBusiness: claim.matchedBusiness,
+        matchedPairBusiness: claim.matchedPairBusiness,
         carryslsp: claim.user.binaryLeftCarryAmount,
         carrysrsp: claim.user.binaryRightCarryAmount,
       },

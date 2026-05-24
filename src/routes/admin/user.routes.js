@@ -6,6 +6,7 @@ const router = Router();
 
 // User Management
 router.get("/", requireAuth(["admin"]), userController.getUsers);
+router.post("/add", requireAuth(["admin"]), userController.addUser);
 router.get("/login-as-user/:userId", requireAuth(["admin"]), userController.loginAsUser);
 router.get("/dashboardDetails", requireAuth(["admin"]), userController.getdashboarddetails);
 router.get("/suspended-users", requireAuth(["admin"]), userController.getSuspendedUser);

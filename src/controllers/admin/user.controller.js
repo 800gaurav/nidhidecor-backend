@@ -8,6 +8,8 @@ import { BankKyc } from "../../models/bankKyc.modal.js";
 import { WithdrawModel } from "../../models/withdraw.model.js";
 import { IncomeModel } from "../../models/Income.modal.js";
 import { PurchaseBillModel } from "../../models/purchaseBill.model.js";
+import { findBinaryPlacement } from "../../helper/binaryPlacement.js";
+import { sendRegistrationCredentialsEmail } from "../../utils/nodemailer.js";
 
 const TREE_USER_FIELDS =
   "_id userId name email phone sponsor createdAt isActivated totalPurchaseAmount walletBalance leftChild rightChild";
@@ -65,6 +67,99 @@ const userController = {
         message: "Error fetching pending users",
         error: err.message,
       });
+    }
+  },
+
+  addUser: async (req, res) => {
+    try {
+      const {
+        name,
+        phone,
+        email,
+        password,
+        referralCode,
+        referrerCode,
+        gender,
+        dateOfBirth,
+        maritalStatus,
+        isActivated = false,
+      } = req.body;
+
+      if (!name || !phone || !password) {
+        return errorResponse(res, "Name, phone and password are required", 400);
+      }
+
+      if (email) {
+        const existingUsers = await UserModel.countDocuments({ email });
+        if (existingUsers >= 7) {
+          return errorResponse(res, "Maximum 7 accounts can be registered with this email", 409);
+        }
+      }
+
+      const sponsorCode = (referralCode || referrerCode || "").toString().trim().toUpperCase();
+      let sponsor = null;
+      let placement = null;
+      let placementParent = null;
+
+      if (sponsorCode) {
+        sponsor = await UserModel.findOne({ referralCode: sponsorCode });
+        if (!sponsor) return errorResponse(res, "Sponsor not found", 404);
+
+        placement = await findBinaryPlacement(sponsor);
+        placementParent = await UserModel.findById(placement.parent._id);
+        if (!placementParent) return errorResponse(res, "Placement parent not found", 404);
+      }
+
+      const newUser = await UserModel.create({
+        name,
+        phone,
+        email,
+        password,
+        forAdminPass: password,
+        gender,
+        dateOfBirth,
+        maritalStatus,
+        isActivated: Boolean(isActivated),
+        sponsor: sponsor?.userId,
+        referrer: sponsor?._id,
+        referralLevel: sponsor ? (sponsor.referralLevel || 0) + 1 : 0,
+      });
+
+      if (placementParent && placement) {
+        if (placement.side === "left") placementParent.leftChild = newUser._id;
+        else placementParent.rightChild = newUser._id;
+
+        newUser.binaryParent = placementParent._id;
+        newUser.binarySide = placement.side;
+        await placementParent.save();
+        await newUser.save();
+      }
+
+      if (email) {
+        try {
+          await sendRegistrationCredentialsEmail({
+            toEmail: newUser.email,
+            name: newUser.name,
+            userId: newUser.userId,
+            password,
+            referralCode: newUser.referralCode,
+          });
+        } catch (mailError) {
+          console.warn("Admin add user credential email failed:", mailError.message);
+        }
+      }
+
+      return successResponse(
+        res,
+        sponsor
+          ? "User added successfully under sponsor"
+          : "Root user added successfully",
+        { user: newUser },
+        201
+      );
+    } catch (error) {
+      console.error("Admin add user error:", error);
+      return errorResponse(res, error.message, 500);
     }
   },
 
