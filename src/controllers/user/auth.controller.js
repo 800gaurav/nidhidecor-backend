@@ -5,7 +5,7 @@ import { UserModel } from "../../models/user.model.js";
 import { errorResponse, successResponse } from "../../utils/api-response.js";
 import { getRandomOTP } from "../../utils/random-otp.js";
 import { JWT_EXPIRE, JWT_SECRET } from "../../config/index.js";
-import { sendRegisterationOTP, sendRegistrationCredentialsEmail, sendRegistrationOTP } from "../../utils/nodemailer.js";
+import { sendRegisterationOTP, sendRegistrationOTP } from "../../utils/nodemailer.js";
 
 import bcrypt from 'bcryptjs';
 
@@ -110,30 +110,11 @@ const authController = {
 
   register: async (req, res) => {
     try {
-      const { email, otp } = req.body;
       const userData = parseUserData(req.body);
+      const email = req.body.email || userData.email || undefined;
 
-      if (!email || !otp || !userData || Object.keys(userData).length === 0) {
-        return res.status(400).json({ success: false, message: "Email, OTP & userData required" });
-      }
-
-      // Verify OTP
-      const tempUser = await TempUserModel.findOne({ email, otp: String(otp) });
-      if (!tempUser) {
-        return errorResponse(res, "Invalid or expired OTP", 400);
-      }
-
-      if (tempUser.otpExpiry && tempUser.otpExpiry < new Date()) {
-        await TempUserModel.deleteOne({ _id: tempUser._id });
-        return errorResponse(res, "Invalid or expired OTP", 400);
-      }
-
-      const existingUsers = await UserModel.countDocuments({ email });
-      if (existingUsers >= 7) {
-        return res.status(400).json({
-          success: false,
-          message: "Maximum 7 accounts can be registered with this email"
-        });
+      if (!userData || Object.keys(userData).length === 0) {
+        return res.status(400).json({ success: false, message: "User data required" });
       }
 
       if (!userData.name || !userData.phone || !userData.password || !userData.referrerCode) {
@@ -151,7 +132,7 @@ const authController = {
 
       const newUser = await UserModel.create({
         name: userData.name,
-        email,
+        ...(email ? { email } : {}),
         phone: userData.phone,
         password: userData.password,
         gender: userData.gender,
@@ -169,20 +150,23 @@ const authController = {
       await placementParent.save();
       await newUser.save();
 
-      await TempUserModel.deleteOne({ _id: tempUser._id });
-
-      // Send credentials email
-      await sendRegistrationCredentialsEmail({
-        toEmail: newUser.email,
-        name: newUser.name,
-        userId: newUser.userId,
-        password: userData.password,
-        referralCode: newUser.referralCode,
-      });
-
       const token = jwt.sign({ _id: newUser._id, role: newUser.role }, JWT_SECRET, { expiresIn: JWT_EXPIRE });
+      const userResponse = newUser.toObject();
+      delete userResponse.password;
 
-      return successResponse(res, "User registered successfully. Login credentials sent to your email.", { user: newUser, token }, 201);
+      return successResponse(
+        res,
+        "User registered successfully.",
+        {
+          user: userResponse,
+          token,
+          credentials: {
+            userId: newUser.userId,
+            password: userData.password,
+          },
+        },
+        201
+      );
     } catch (err) {
       console.error(err);
       return res.status(500).json({success: false, message: err.message });
